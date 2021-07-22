@@ -14,6 +14,7 @@ export function UserReducer(prevState, { type, data }) {
 			};
 		case "SIGN_IN":
 			axios.defaults.headers.common["Authorization"] = "Bearer " + data.token;
+
 			return {
 				...prevState,
 				user: data.user,
@@ -21,6 +22,7 @@ export function UserReducer(prevState, { type, data }) {
 			};
 		case "SIGN_OUT":
 			delete axios.defaults.headers.common["Authorization"];
+
 			return {
 				...prevState,
 				user: null,
@@ -33,6 +35,11 @@ export function UserReducer(prevState, { type, data }) {
 					...prevState.user,
 					...data.user,
 				},
+			};
+		case "UPDATE_ONLINE":
+			return {
+				...prevState,
+				online: data.online,
 			};
 	}
 }

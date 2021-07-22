@@ -1,12 +1,12 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import {
+	ActivityIndicator,
+	Button,
+	ScrollView,
 	StyleSheet,
 	Text,
-	View,
 	TextInput,
-	Button,
-	ActivityIndicator,
-	ScrollView,
+	View,
 } from "react-native";
 import { StoreContext } from "../../store/StoreContext";
 import common, { colors } from "../../styles";
@@ -44,7 +44,7 @@ export default function Login() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [passwordCheck, setPasswordCheck] = useState(false);
-	const [passwordConfirm, setPasswordConfirm] = useState(true);
+	const [passwordConfirm, setPasswordConfirm] = useState(false);
 	const [registering, setRegistering] = useState(false);
 	const [error, setError] = useState(null);
 
@@ -59,6 +59,8 @@ export default function Login() {
 		setRegistering(false);
 	};
 
+	console.log(username, password);
+
 	return (
 		<ScrollView contentContainerStyle={common.container}>
 			{!registering ? (
@@ -67,6 +69,8 @@ export default function Login() {
 					<Text style={[login.fieldName, login.spacing]}>Nom d&#39;utilisateur</Text>
 					<TextInput
 						style={[login.input, login.spacing]}
+						minLength={2}
+						maxLength={32}
 						defaultValue={username}
 						onChangeText={setUsername}
 					/>
@@ -101,7 +105,12 @@ export default function Login() {
 							}
 						}}
 					/>
-					<Button onPress={doRegister} title="Inscription" color={colors.purple} />
+					<Button
+						onPress={doRegister}
+						title="Inscription"
+						color={colors.purple}
+						disabled={!passwordConfirm || username.length < 2 || password.length < 8}
+					></Button>
 				</View>
 			) : (
 				<ActivityIndicator size="large" color={colors.purple} />

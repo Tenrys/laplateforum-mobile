@@ -1,12 +1,12 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import {
+	ActivityIndicator,
+	Button,
+	ScrollView,
 	StyleSheet,
 	Text,
-	View,
 	TextInput,
-	Button,
-	ActivityIndicator,
-	ScrollView,
+	View,
 } from "react-native";
 import { StoreContext } from "../../store/StoreContext";
 import common, { colors } from "../../styles";
@@ -65,17 +65,26 @@ export default function Login() {
 					<Text style={[login.fieldName, login.spacing]}>Nom d&#39;utilisateur</Text>
 					<TextInput
 						style={[login.input, login.spacing]}
+						minLength={2}
+						maxLength={32}
 						defaultValue={username}
 						onChangeText={setUsername}
 					/>
 					<Text style={[login.fieldName, login.spacing]}>Mot de passe</Text>
 					<TextInput
 						style={[login.input, login.spacing]}
+						minLength={8}
+						maxLength={128}
 						defaultValue={password}
 						onChangeText={setPassword}
 						secureTextEntry={true}
 					/>
-					<Button onPress={doSignIn} title="Connexion" color={colors.purple} />
+					<Button
+						onPress={doSignIn}
+						title="Connexion"
+						color={colors.purple}
+						disabled={!username.length < 2 || !password.length < 8}
+					/>
 				</View>
 			) : (
 				<ActivityIndicator size="large" color={colors.purple} />

@@ -1,6 +1,5 @@
+import { DrawerContentScrollView, DrawerItem, DrawerItemList } from "@react-navigation/drawer";
 import React, { useContext } from "react";
-import { DrawerContentScrollView, DrawerItemList, DrawerItem } from "@react-navigation/drawer";
-import { Avatar } from "react-native-elements";
 import { Text, View } from "react-native";
 import { StoreContext } from "../store/StoreContext";
 import UserAvatar from "./UserAvatar";
@@ -20,10 +19,7 @@ export default function UserDrawerProfile(props) {
 						marginVertical: 5,
 					}}
 				>
-					<UserAvatar
-						avatar={user.avatar}
-						onPress={() => navigation.navigate("EditProfile")}
-					/>
+					<UserAvatar user={user} onPress={() => navigation.navigate("EditProfile")} />
 					<Text style={{ fontSize: 20, marginVertical: 8 }}>{state.user.username}</Text>
 				</View>
 			) : null}

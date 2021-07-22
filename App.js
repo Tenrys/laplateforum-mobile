@@ -1,19 +1,19 @@
-import React from "react";
-import "moment/locale/fr";
-import "react-native-url-polyfill/auto";
-
-import { StatusBar } from "expo-status-bar";
-import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { Login, Register, Home, EditProfile } from "./components/views";
-import { UserDrawerProfile } from "./components";
-import { UserState } from "./store/StoreState";
-import { StoreContext } from "./store/StoreContext";
-import { colors } from "./styles";
+import { NavigationContainer } from "@react-navigation/native";
 import axios from "axios";
+import { StatusBar } from "expo-status-bar";
+import "moment/locale/fr";
+import React from "react";
+import "react-native-url-polyfill/auto";
+import { UserDrawerProfile } from "./components";
+import { EditProfile, Home, Login, Register } from "./components/views";
+import { StoreContext } from "./store/StoreContext";
+import { UserState } from "./store/StoreState";
+import { colors } from "./styles";
+import { host } from "./env";
 
-axios.defaults.baseURL = "http://192.168.0.10:8000/api/v1";
-axios.defaults.timeout = 3000;
+axios.defaults.baseURL = `http://${host}/api/v1`;
+axios.defaults.timeout = 10000;
 
 export default function App() {
 	const Drawer = createDrawerNavigator();
@@ -26,6 +26,7 @@ export default function App() {
 						<>
 							<NavigationContainer>
 								<Drawer.Navigator
+									drawerType="slide"
 									drawerContentOptions={{
 										activeTintColor: colors.purple,
 										activeBackgroundColor: colors.purpleTranslucent,

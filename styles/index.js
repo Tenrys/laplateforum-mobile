@@ -3,9 +3,8 @@ import { StyleSheet } from "react-native";
 export const colors = {
 	purple: "#9D61D6",
 	purpleTranslucent: "#9D61D620",
-	orange: "#ed8b36",
-	blue: "#35aade",
-	blueTranslucent: "#35aade20",
+	green: "#73D661",
+	greenTranslucent: "#73D66120",
 };
 
 export default StyleSheet.create({

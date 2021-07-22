@@ -1,11 +1,13 @@
-import React, { useContext } from "react";
-import { Button, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
-import UserAvatar from "./UserAvatar";
-import { colors } from "../styles";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import moment from "moment";
+import React, { useContext } from "react";
+import { Alert, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { MarkdownView } from "react-native-markdown-view";
 import { StoreContext } from "../store/StoreContext";
-import axios from "axios";
+import { colors } from "../styles";
+import MyTags from "./MyTags";
+import UserAvatar from "./UserAvatar";
 
 function ActionButton(props) {
 	const { align } = props;
@@ -28,16 +30,18 @@ function ActionButton(props) {
 }
 
 export default function Post(props) {
+	const navigation = useNavigation();
 	const { state } = useContext(StoreContext);
 	const { user } = state;
-	const { id, body, author, thread, votes, createdAt, updatedAt, doRefresh } = props;
+	const { firstPost, id, body, author, thread, votes, createdAt, updatedAt, doRefresh } = props;
 
 	const modified = createdAt !== updatedAt;
-	const hasPermission = user && (author.id == user.id || user.role.isAdmin);
+	const hasPermission = author.id == user?.id || user?.role?.isAdmin;
 
 	const vote = async up => {
 		if (!user) {
-			ToastAndroid.show("Please log in to vote", ToastAndroid.SHORT);
+			if (ToastAndroid && ToastAndroid.show)
+				ToastAndroid.show("Please log in to vote", ToastAndroid.SHORT);
 			return;
 		}
 
@@ -52,12 +56,86 @@ export default function Post(props) {
 		doRefresh();
 	};
 
+	const deleteThread = async () => {
+		Alert.alert(
+			"Confirmation",
+			"Êtes-vous sûr(e) de vouloir supprimer ce sujet ?",
+			[
+				{
+					text: "Oui",
+					onPress: async () => {
+						await axios.delete(`/threads/${thread.id}`);
+						navigation.navigate("Threads");
+					},
+				},
+				{
+					text: "Non",
+					style: "cancel",
+				},
+			],
+			{ cancelable: true }
+		);
+	};
+
+	const deletePost = async () => {
+		Alert.alert(
+			"Confirmation",
+			"Êtes-vous sûr(e) de vouloir supprimer ce message ?",
+			[
+				{
+					text: "Oui",
+					onPress: async () => {
+						await axios.delete(`/threads/${thread.id}/${id}`);
+						doRefresh();
+					},
+				},
+				{
+					text: "Non",
+					style: "cancel",
+				},
+			],
+			{ cancelable: true }
+		);
+	};
+
+	const toggleLock = async () => {
+		await axios.post(`/threads/${thread.id}/${thread.closed ? "open" : "close"}`);
+		doRefresh();
+	};
+
+	const editThread = async () => {
+		navigation.navigate("EditThread", { ...thread, body });
+	};
+	const editPost = async () => {
+		navigation.navigate("EditPost", { id, body, thread });
+	};
+
+	const setAnswer = async () => {
+		if (thread.answerId != id) await axios.post(`/threads/${thread.id}/${id}/answer`);
+		else await axios.delete(`/threads/${thread.id}/answer`);
+		doRefresh();
+	};
+
 	return (
 		<View>
-			<View
+			{firstPost && thread.tags.length > 0 ? (
+				<View
+					style={{
+						paddingHorizontal: 12,
+						paddingVertical: 6,
+						borderBottomWidth: 1,
+						borderColor: "#00000020",
+						backgroundColor: "#0000000a",
+					}}
+				>
+					<MyTags tags={thread.tags.map(({ name }) => name)} readonly />
+				</View>
+			) : null}
+			<TouchableOpacity
 				style={{
 					padding: 12,
-					backgroundColor: colors.purpleTranslucent,
+					backgroundColor:
+						thread.answerId == id ? colors.greenTranslucent : colors.purpleTranslucent,
 					borderTopWidth: 1,
 					borderBottomWidth: 1,
 					borderColor: "#00000020",
@@ -65,12 +143,11 @@ export default function Post(props) {
 					flexDirection: "row",
 					alignItems: "center",
 				}}
+				onPress={() => {
+					navigation.navigate("Profile", { id: author.id });
+				}}
 			>
-				<UserAvatar
-					size="medium"
-					avatar={author.avatar}
-					containerStyle={{ marginRight: 12 }}
-				/>
+				<UserAvatar size="medium" user={author} containerStyle={{ marginRight: 12 }} />
 				<View>
 					<Text style={{ fontSize: 18, fontWeight: "bold" }}>{author.username}</Text>
 					<Text style={{ fontSize: 12, color: "#000000a0" }}>
@@ -79,7 +156,7 @@ export default function Post(props) {
 							: moment(createdAt).locale("fr").calendar().toLowerCase()}
 					</Text>
 				</View>
-			</View>
+			</TouchableOpacity>
 			<View>
 				<MarkdownView style={{ margin: 12 }}>{body}</MarkdownView>
 			</View>
@@ -90,7 +167,6 @@ export default function Post(props) {
 					flex: 1,
 					flexDirection: "row",
 					alignItems: "center",
-					justifyContent: "space-between",
 					borderTopWidth: 1,
 					borderColor: "#00000020",
 					backgroundColor: "#0000000a",
@@ -102,26 +178,40 @@ export default function Post(props) {
 				<ActionButton align="l" onPress={() => vote(false)}>
 					👎 {votes.filter(({ up }) => !up).length}
 				</ActionButton>
-				<View
-					style={{
-						flex: 1,
-						flexDirection: "row",
-						alignItems: "center",
-						justifyContent: "flex-end",
-					}}
-				>
-					{state.token ? (
-						<>
-							{author.id == user.id ? (
-								<ActionButton align="r">📝</ActionButton>
-							) : null}
-							{hasPermission ? <ActionButton align="r">🗑</ActionButton> : null}
-							{thread.author.id == user.id ? (
-								<ActionButton align="r">✅</ActionButton>
-							) : null}
-						</>
-					) : null}
-				</View>
+				{state.token ? (
+					<>
+						{(!thread.closed || firstPost) && author.id == user.id ? (
+							<ActionButton
+								align="l"
+								onPress={() => (firstPost ? editThread() : editPost())}
+							>
+								📝
+							</ActionButton>
+						) : null}
+						{hasPermission ? (
+							<>
+								{!thread.closed || firstPost ? (
+									<ActionButton
+										align="l"
+										onPress={() => (firstPost ? deleteThread() : deletePost())}
+									>
+										🗑
+									</ActionButton>
+								) : null}
+								{firstPost ? (
+									<ActionButton align="l" onPress={toggleLock}>
+										{thread.closed ? "🔓" : "🔒"}
+									</ActionButton>
+								) : null}
+							</>
+						) : null}
+						{!firstPost && thread.author.id == user.id ? (
+							<ActionButton align="l" onPress={setAnswer}>
+								✅
+							</ActionButton>
+						) : null}
+					</>
+				) : null}
 			</View>
 		</View>
 	);

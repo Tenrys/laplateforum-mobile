@@ -1,42 +1,25 @@
-import React, { useContext, useState, useEffect } from "react";
-import { StoreContext } from "../../store/StoreContext";
-import {
-	Text,
-	TextInput,
-	Button,
-	View,
-	StyleSheet,
-	ActivityIndicator,
-	ScrollView,
-	RefreshControl,
-} from "react-native";
-import common, { colors } from "../../styles";
+import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
+import React, { useCallback, useContext, useState } from "react";
+import { ActivityIndicator, RefreshControl, ScrollView, View } from "react-native";
+import { FAB, Icon } from "react-native-elements";
+import { StoreContext } from "../../store/StoreContext";
+import common, { colors } from "../../styles";
 import Post from "../Post";
 
-const style = StyleSheet.create({
-	input: {
-		flex: 1,
-		fontSize: 16,
-		padding: 4,
-		borderWidth: 1,
-		borderColor: "#0000007f",
-		borderRadius: 2,
-	},
-});
-
-export default function Thread({ route }) {
+export default function Thread({ navigation, route }) {
+	const { id } = route.params;
 	const { state, setTitle } = useContext(StoreContext);
+	const { user } = state;
 	const [thread, setThread] = useState(null);
-	const [body, setBody] = useState("");
-	const [error, setError] = React.useState(null);
-	const [sending, setSending] = React.useState(false);
 	const [refreshing, setRefreshing] = React.useState(false);
+
+	const hasPermission = user?.role?.isAdmin;
 
 	async function fetchPosts() {
 		setRefreshing(true);
 		try {
-			const { data } = await axios.get(`/threads/${route.params.id}`);
+			const { data } = await axios.get(`/threads/${id}`);
 
 			setThread(data.result);
 			setTitle(data.result.title);
@@ -46,61 +29,45 @@ export default function Thread({ route }) {
 		setRefreshing(false);
 	}
 
-	async function sendPost() {
-		setSending(true);
-		try {
-			await axios.post(`/threads/${route.params.id}`, {
-				body,
-			});
-			await fetchPosts();
-			setBody("");
-		} catch (err) {
-			console.error(err);
-			setError(err.message);
-		}
-		setSending(false);
-	}
-
-	useEffect(() => {
-		fetchPosts();
-	}, []);
+	useFocusEffect(
+		useCallback(() => {
+			fetchPosts();
+		}, [])
+	);
 
 	let placeholder = <ActivityIndicator size="large" color={colors.purple} />;
 	if (thread) {
 		return (
-			<ScrollView
-				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />}
-			>
-				{thread.posts.map((post, i) => {
-					return (
-						<Post
-							firstPost={i == 0}
-							key={i}
-							{...post}
-							thread={thread}
-							doRefresh={fetchPosts}
-						/>
-					);
-				})}
-				{state.token ? (
-					<View style={{ flexGrow: 1, flexDirection: "row", padding: 12 }}>
-						{error ? <Text style={{ color: "red" }}>{error}</Text> : null}
-						<TextInput
-							style={style.input}
-							onChangeText={setBody}
-							multiline
-							placeholder="Envoyer une réponse..."
-						/>
-						{/* TODO: Markdown editor?? */}
-						<Button
-							title={sending ? "Envoi..." : "Envoyer"}
-							onPress={sendPost}
-							disabled={!sending && body.length < 7}
-							color={colors.purple}
-						/>
-					</View>
+			<>
+				<ScrollView
+					refreshControl={
+						<RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />
+					}
+				>
+					{thread.posts.map((post, i) => {
+						return (
+							<Post
+								firstPost={i == 0}
+								key={i}
+								{...post}
+								thread={thread}
+								doRefresh={fetchPosts}
+							/>
+						);
+					})}
+				</ScrollView>
+				{state.token && (!thread.closed || hasPermission) ? (
+					<FAB
+						placement="right"
+						color={colors.purple}
+						icon={<Icon type="material" name="reply" color="white"></Icon>}
+						onPress={() => {
+							navigation.navigate("NewPost", { id });
+						}}
+						buttonStyle={{ borderRadius: 100 }}
+					></FAB>
 				) : null}
-			</ScrollView>
+			</>
 		);
 	} else return <View style={common.container}>{placeholder}</View>;
 }

@@ -1,35 +1,25 @@
-import React, { useContext, useEffect } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { StoreContext } from "../../store/StoreContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Threads from "./Threads";
+import React from "react";
+import EditPost from "./EditPost";
+import EditThread from "./EditThread";
+import NewPost from "./NewPost";
+import NewThread from "./NewThread";
+import Profile from "./Profile";
 import Thread from "./Thread";
+import Threads from "./Threads";
 
 const Stack = createStackNavigator();
 
 export default function Home({ navigation }) {
-	const { dispatch } = useContext(StoreContext);
-
-	useEffect(() => {
-		async function isSigned() {
-			try {
-				let data = await AsyncStorage.getItem("user");
-				if (!data) return;
-				const { user, token } = JSON.parse(data);
-				if (token) {
-					dispatch({ type: "SIGN_IN", data: { user, token } });
-				}
-			} catch (err) {
-				console.error(err);
-			}
-		}
-		isSigned();
-	}, []);
-
 	return (
 		<Stack.Navigator screenOptions={{ headerShown: false }}>
 			<Stack.Screen name="Threads" component={Threads} />
 			<Stack.Screen name="Thread" component={Thread} />
+			<Stack.Screen name="NewThread" component={NewThread} />
+			<Stack.Screen name="EditThread" component={EditThread} />
+			<Stack.Screen name="NewPost" component={NewPost} />
+			<Stack.Screen name="EditPost" component={EditPost} />
+			<Stack.Screen name="Profile" component={Profile} />
 		</Stack.Navigator>
 	);
 }

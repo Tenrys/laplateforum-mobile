@@ -1,10 +1,10 @@
-import React, { useContext, useState } from "react";
-import { StoreContext } from "../../store/StoreContext";
-import { Text, View, TextInput, Button, StyleSheet, ScrollView, ToastAndroid } from "react-native";
-import { Avatar } from "react-native-elements/dist/avatar/Avatar";
-import common, { colors } from "../../styles";
 import axios from "axios";
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
+import React, { useContext, useState } from "react";
+import { Button, ScrollView, StyleSheet, Text, TextInput, ToastAndroid } from "react-native";
+import { Avatar } from "react-native-elements/dist/avatar/Avatar";
+import { StoreContext } from "../../store/StoreContext";
+import common, { colors } from "../../styles";
 import UserAvatar from "../UserAvatar";
 
 const profile = StyleSheet.create({
@@ -87,7 +87,7 @@ export default function EditProfile({ navigation }) {
 			{avatar ? (
 				<Avatar rounded size="xlarge" source={{ uri: avatar }} onPress={pickAvatar} />
 			) : (
-				<UserAvatar avatar={user.avatar} onPress={pickAvatar} />
+				<UserAvatar user={user} onPress={pickAvatar} />
 			)}
 			<Text style={[profile.header, profile.spacing]}>{user.username}</Text>
 			<Text style={[profile.fieldName, profile.spacing]}>Statut</Text>
