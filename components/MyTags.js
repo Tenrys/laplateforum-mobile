@@ -28,11 +28,16 @@ export default function MyTags(props) {
 				borderColor: "#0000007f",
 				borderRadius: 2,
 				paddingHorizontal: 0,
+				paddingLeft: 0,
+				paddingRight: 0,
 			}}
 			inputContainerStyle={{
 				margin: 0,
 				backgroundColor: "transparent",
 				padding: 0,
+				paddingHorizontal: 0,
+				paddingLeft: 0,
+				paddingRight: 0,
 			}}
 			renderTag={({ tag, index, onPress, deleteTagOnPress }) => {
 				const color = stc(tag);

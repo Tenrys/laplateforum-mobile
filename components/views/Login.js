@@ -83,7 +83,7 @@ export default function Login() {
 						onPress={doSignIn}
 						title="Connexion"
 						color={colors.purple}
-						disabled={!username.length < 2 || !password.length < 8}
+						disabled={username.length < 2 || password.length < 8}
 					/>
 				</View>
 			) : (

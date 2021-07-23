@@ -8,6 +8,8 @@ $ turtle build:android --keystore-path LaPlateforum_.jks --keystore-alias QG1hcm
 
 ### Requirements:
 
+https://docs.expo.io/distribution/turtle-cli/
+
 > (please provide Keystore password and Key password as EXPO_ANDROID_KEYSTORE_PASSWORD and EXPO_ANDROID_KEY_PASSWORD env variables)
 > -u --username <username>          username (you can also set EXPO_USERNAME env variable)
 > -p --password <password>          password (you can also set EXPO_PASSWORD env variable)
