@@ -1,22 +1,13 @@
-Left to implement:
+## Build
 
-- [ ] Threads
-  - [ ] Create view
-  - [ ] Show tags
-  - [ ] Add action buttons
-    - [ ] Edit
-    - [ ] Delete
-    - [ ] Change state
-    - [ ] Subscribe
-  - [ ] Posts
-    - [ ] Add action buttons
-      - [ ] Edit
-      - [ ] Delete
-      - [x] Vote
-      - [ ] Answer
-    - [ ] View user profiles
-- [x] Register
+On Linux:
 
-If there's time...
+```sh
+$ turtle build:android --keystore-path LaPlateforum_.jks --keystore-alias QG1hcmNlYXUtbWF1YmVydC9MYVBsYXRlZm9ydW1f1
+```
 
-- [ ] Chat???
+### Requirements:
+
+> (please provide Keystore password and Key password as EXPO_ANDROID_KEYSTORE_PASSWORD and EXPO_ANDROID_KEY_PASSWORD env variables)
+> -u --username <username>          username (you can also set EXPO_USERNAME env variable)
+> -p --password <password>          password (you can also set EXPO_PASSWORD env variable)
